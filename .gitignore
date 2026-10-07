@@ -5,8 +5,9 @@ __pycache__/
 .env
 
 # Data
-data/*
-!data/raw/
+data/**/*.csv
+data/**/*.parquet
+
+# Keep directory structure
 !data/raw/.gitkeep
-!data/processed/
 !data/processed/.gitkeep
