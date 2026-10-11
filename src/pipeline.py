@@ -21,7 +21,9 @@ BINARY_FEATURES = [
 ]
 
 
-def create_preprocessor(scale_numeric=True):
+def create_preprocessor(
+    scale_numeric=True, categorical_features=None, binary_features=None
+):
     """
     Cria o pré-processador das variáveis preditoras.
 
@@ -29,7 +31,10 @@ def create_preprocessor(scale_numeric=True):
     ----------
     scale_numeric : bool
         Define se as variáveis numéricas contínuas serão padronizadas.
-
+    categorical_features : list, opcional
+        Variáveis categóricas para one-hot. Padrão: CATEGORICAL_FEATURES.
+    binary_features : list, opcional
+        Variáveis já codificadas como 0/1. Padrão: BINARY_FEATURES.
 
     Retorna
     -------
@@ -37,6 +42,11 @@ def create_preprocessor(scale_numeric=True):
         Codificação categórica, imputação (mediana) e padronização opcional
         das numéricas. As binárias devem já estar codificadas como 0/1.
     """
+    if categorical_features is None:
+        categorical_features = CATEGORICAL_FEATURES
+    if binary_features is None:
+        binary_features = BINARY_FEATURES
+
     numeric_steps = [("imputer", SimpleImputer(strategy="median"))]
     if scale_numeric:
         numeric_steps.append(("scaler", StandardScaler()))
@@ -48,10 +58,10 @@ def create_preprocessor(scale_numeric=True):
                 OneHotEncoder(
                     handle_unknown="ignore", drop="if_binary", sparse_output=False
                 ),
-                CATEGORICAL_FEATURES,
+                categorical_features,
             ),
             ("numerical", Pipeline(numeric_steps), NUMERICAL_FEATURES),
-            ("binary", "passthrough", BINARY_FEATURES),
+            ("binary", "passthrough", binary_features),
         ],
         remainder="drop",
     )
